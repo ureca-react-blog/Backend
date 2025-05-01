@@ -99,6 +99,7 @@ app.post("/login", async (req, res) => {
   }
 });
 
+// 회원 정보 조회 API
 app.get("/profile", (req, res) => {
   // 1. req.cookeis를 읽어 토큰 정보 가져오기
   const { token } = req.cookies;
