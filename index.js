@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
+import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -15,6 +16,7 @@ app.use(
   })
 );
 app.use(express.json());
+app.use(cookieParser());
 
 mongoose
   .connect(process.env.MONGODB_URI)
@@ -110,14 +112,14 @@ app.get("/profile", (req, res) => {
   const { token } = req.cookies;
   console.log("쿠키", token);
   if (!token) {
-    return res.status(401).json({ error: "로그인 필요" });
+    return res.json({ error: "로그인 필요" });
   }
   // 2. jwt.verify 함수로 토큰 유효성 검사하기
   // jwt.verify(토큰, 비밀키, 콜백함수(에러, 정보))
   jwt.verify(token, secretKey, (err, info) => {
     // 유효하지 않다면 에러 메시지 반환하기
     if (err) {
-      return res.status(401).json({ error: "로그인 필요" });
+      return res.json({ error: "로그인 필요" });
       // 3. 유효하면 토큰 내부 사용자 정보 반환하기
     } else {
       res.json(info); //info가 쓰이지 않는다면 메시지만 보내도 상관 X
