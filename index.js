@@ -6,6 +6,10 @@ import jwt from "jsonwebtoken";
 import cookieParser from "cookie-parser";
 import { userModel } from "./model/user.js";
 import dotenv from "dotenv";
+import multer from "multer";
+import path from "path"; // node.js 제공 (설치 X)
+import fs from "fs"; // node.js 제공 (설치 X)
+import { postModel } from "./model/post.js";
 
 dotenv.config();
 
@@ -150,6 +154,54 @@ app.post("/logout", (req, res) => {
     // 2. 브라우저가 만료된 쿠키를 자동으로 삭제하기
     .json({ message: "로그아웃 되었습니다" });
   2;
+});
+
+// 게시글 작성
+
+// 업로드할 디렉토리 없으면 자동 생성
+const uploadDir = "uploads";
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir);
+}
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/"); // null = 에러가 없다는 뜻, 경로명
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, uniqueSuffix + path.extname(file.originalname)); // uniqueSuffix + 확장자명
+  },
+});
+
+const upload = multer({ storage });
+app.post("/postWrite", upload.single("files"), async (req, res) => {
+  try {
+    console.log(req.file); // 업로드된 파일 정보
+    console.log(req.body); // 폼 데이터
+
+    const { token } = req.cookies; // 쿠키에서 토큰 가져오기
+    if (!token) return res.json({ error: "로그인 필요 " });
+    const userInfo = jwt.verify(token, secretKey); // 토큰에서 사용자 정보 추출
+    console.log("userInfo", userInfo);
+
+    const { title, summary, content } = req.body;
+    const postData = {
+      title,
+      summary,
+      content,
+      cover: req.file ? req.file.path : null, // 업로드된 파일 경로
+      author: userInfo.username, // 사용자 정보 (토큰 활용)
+    };
+
+    await postModel.create(postData);
+    console.log("게시글 작성 완료");
+
+    res.json({ message: "게시글 작성 완료" });
+  } catch (error) {
+    console.log("게시글 작성 에러", error);
+    return res.status(500).json({ error: "게시글 작성 실패" });
+  }
 });
 
 app.listen(port, () => {
