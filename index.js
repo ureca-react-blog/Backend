@@ -11,7 +11,7 @@ const port = process.env.PORT || 3000;
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: process.env.FRONTEND_URL,
     credentials: true, // true로 설정하면 쿠키를 포함한 요청 허용
   })
 );
@@ -19,7 +19,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 mongoose
-  .connect(process.env.MONGODB_URI)
+  .connect(process.env.MONGODB_URI, { dbName: process.env.MONGODB_DB_NAME })
   .then(() => console.log("MongoDB 연결 성공"))
   .catch(() => {
     console.log("MongoDB 연결 실패");
