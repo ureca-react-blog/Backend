@@ -120,6 +120,19 @@ app.get("/profile", (req, res) => {
   });
 });
 
+// 로그아웃 API
+app.post("/logout", (req, res) => {
+  // 1. token 쿠키를 빈 값 + 만료 시간 0으로 설정하기
+  res
+    .cookie("token", "", {
+      httpOnly: true,
+      expires: new Date(0), // 1970년 1월 1일로 설정 (과거)
+    })
+    // 2. 브라우저가 만료된 쿠키를 자동으로 삭제하기
+    .json({ message: "로그아웃 되었습니다" });
+  2;
+});
+
 app.listen(port, () => {
   console.log(`${port} 포트에서 돌고 있음`);
 });
