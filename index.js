@@ -79,9 +79,9 @@ app.post("/login", async (req, res) => {
     if (!passOk) {
       return res.status(401).json({ error: "비밀번호가 일치하지 않습니다" });
     } else {
-      // 토큰화하기 위해 DB에서 paylaod 가져오기
+      // 토큰화하기 위해 DB에서 payload 가져오기
       const { _id, username } = userDoc;
-      const payload = { id: _id, username }; // 토큰화하기 위해 DB에서 paylaod를 가져온다.
+      const payload = { id: _id, username }; // 토큰화하기 위해 DB에서 payload를 가져온다.
       // 3. 비밀번호가 일치하면 sign 함수로 JWT 토큰 발급하기
       const token = jwt.sign(payload, secretKey, {
         expiresIn: tokenLife, //유효 시간은 문자열로
@@ -108,7 +108,7 @@ app.get("/profile", (req, res) => {
     return res.status(401).json({ error: "로그인 필요" });
   }
   // 2. jwt.verify 함수로 토큰 유효성 검사하기
-  // jwt.vertify(토큰, 비밀키, 콜백함수(에러, 정보))
+  // jwt.verify(토큰, 비밀키, 콜백함수(에러, 정보))
   jwt.verify(token, secretKey, (err, info) => {
     // 유효하지 않다면 에러 메시지 반환하기
     if (err) {
