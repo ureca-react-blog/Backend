@@ -8,7 +8,12 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 3000;
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true, // true로 설정하면 쿠키를 포함한 요청 허용
+  })
+);
 app.use(express.json());
 
 mongoose
