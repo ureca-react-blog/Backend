@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import cookieParser from "cookie-parser";
-import userModel from "./models/User.js";
+import { userModel } from "./model/user.js";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -34,6 +34,14 @@ const saltRounds = Number(process.env.BCRYPT_SALT_ROUNDS);
 // JWT
 const secretKey = process.env.JWT_SECRET;
 const tokenLife = process.env.JWT_EXPIRATION; // 토큰의 유효 기간
+
+const cookiesOption = {
+  httpOnly: true, // 자바스크립트에서 접근 불가 처리 (XSS 공격 차단)
+  maxAge: 1000 * 60 * 60 * 24, // 쿠키 만료 시간 (1일)
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "strict", // CSRF 방지
+  path: "/",
+};
 
 //---------------------------------------------
 
@@ -99,7 +107,7 @@ app.post("/login", async (req, res) => {
       res // 4. JWT를 쿠키로 프론트에 저장하기
         .cookie("token", token, {
           // 쿠키에 토큰 등록하기
-          httpOnly: true, // 자바스크립트에서 접근 불가 처리 (XSS 공격 차단)
+          cookiesOption, // 쿠키 옵션 설정
         })
         // 프론트 스토어에 저장할 때 사용할 데이터 보내기
         .json({ id: userDoc._id, username });
@@ -132,12 +140,13 @@ app.get("/profile", (req, res) => {
 
 // 로그아웃 API
 app.post("/logout", (req, res) => {
+  const logoutToken = {
+    ...cookiesOption,
+    maxAge: 0,
+  };
   // 1. token 쿠키를 빈 값 + 만료 시간 0으로 설정하기
   res
-    .cookie("token", "", {
-      httpOnly: true,
-      expires: new Date(0), // 1970년 1월 1일로 설정 (과거)
-    })
+    .cookie("token", "", logoutToken)
     // 2. 브라우저가 만료된 쿠키를 자동으로 삭제하기
     .json({ message: "로그아웃 되었습니다" });
   2;
