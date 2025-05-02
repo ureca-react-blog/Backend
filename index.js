@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import cookieParser from "cookie-parser";
+import userModel from "./models/User.js";
 import dotenv from "dotenv";
 
 dotenv.config();
