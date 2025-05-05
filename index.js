@@ -10,6 +10,9 @@ import multer from "multer";
 import path from "path"; // node.js 제공 (설치 X)
 import fs from "fs"; // node.js 제공 (설치 X)
 import { postModel } from "./model/post.js";
+import { fileURLToPath } from "url";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 dotenv.config();
 
@@ -24,6 +27,7 @@ app.use(
 );
 app.use(express.json());
 app.use(cookieParser());
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 mongoose
   .connect(process.env.MONGODB_URI, { dbName: process.env.MONGODB_DB_NAME })
@@ -51,6 +55,11 @@ const cookiesOption = {
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
+});
+
+app.get("/uploads/:filename", (req, res) => {
+  const { filename } = req.params;
+  res.sendFile(path.join(__dirname, "uploads", filename));
 });
 
 // 회원가입 API
@@ -153,10 +162,9 @@ app.post("/logout", (req, res) => {
     .cookie("token", "", logoutToken)
     // 2. 브라우저가 만료된 쿠키를 자동으로 삭제하기
     .json({ message: "로그아웃 되었습니다" });
-  2;
 });
 
-// 게시글 작성
+// 게시글 작성 API
 
 // 업로드할 디렉토리 없으면 자동 생성
 const uploadDir = "uploads";
