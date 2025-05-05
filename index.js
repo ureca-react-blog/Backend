@@ -223,6 +223,21 @@ app.get("/postList", async (req, res) => {
   }
 });
 
+// 게시글 조회 API
+app.get("/postDetail/:postId", async (req, res) => {
+  try {
+    const { postId } = req.params;
+    const post = await postModel.findById(postId);
+    if (!post) {
+      return res.status(404).json({ error: "게시글이 존재하지 않습니다" });
+    }
+    res.json(post);
+  } catch (error) {
+    console.log("게시글 조회 실패", error);
+    res.status(500).json({ error: "게시글을 불러오는 데 실패하였습니다" });
+  }
+});
+
 app.listen(port, () => {
   console.log(`${port} 포트에서 돌고 있음`);
 });
