@@ -212,6 +212,17 @@ app.post("/postWrite", upload.single("files"), async (req, res) => {
   }
 });
 
+// 게시글 목록 조회 API
+app.get("/postList", async (req, res) => {
+  try {
+    const posts = await postModel.find().sort({ createdAt: -1 }).limit(3); // 등록순으로 3개 포스트만 가져오기
+    res.json(posts); // 프론트로 리스트 전달하기
+  } catch (error) {
+    console.log("게시글 목록 조회 실패", error);
+    res.status(500).json({ error: "게시글 목록 조회 실패" }); // 에러 전달하기
+  }
+});
+
 app.listen(port, () => {
   console.log(`${port} 포트에서 돌고 있음`);
 });
